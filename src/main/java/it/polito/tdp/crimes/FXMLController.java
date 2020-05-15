@@ -7,6 +7,7 @@ package it.polito.tdp.crimes;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenze;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,10 +26,10 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
@@ -44,11 +45,48 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
+    	
+    	 if(this.model.FilteredPesoMedio()==null)
+		  {
+			  txtResult.appendText("ERRORE PESO MEDIO\n");
+			  return;
+		  }
+		  
+		 
+		// this.boxArco.getItems().addAll(this.model.FilteredPesoMedio());
+    	
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	String categoria = this.boxCategoria.getValue();
+    	Integer mese = this.boxMese.getValue();
+    	if(mese==null )
+    	{
+    		txtResult.appendText("INSERIRE UN MESE\n");
+    		return;
+    	}
+    	if(categoria==null )
+    	{
+    		txtResult.appendText("INSERIRE UNA CATEGORIA\n");
+    		return;
+    	}
+    	this.model.creaGrafo(categoria, mese);
+		
+		  txtResult.appendText("VERTICI : "+this.model.VertexSize()+"\n");
+		  txtResult.appendText("ARCHI : "+this.model.EdgeSet()+"\n");
+		 
+		  if(this.model.FilteredPesoMedio()==null)
+		  {
+			  txtResult.appendText("ERRORE PESO MEDIO\n");
+			  return;
+		  }
+		 
+		 for(Adiacenze s : this.model.FilteredPesoMedio())
+		 {
+			 txtResult.appendText(s.toString());
+		 }
 
     }
 
@@ -65,5 +103,12 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	if(this.model.ListAllCategory() == null || this.model.ListMonths() == null)
+    	{
+    		txtResult.appendText("ERRORE CARICAMENTO DATABASE!\n");
+    		return;
+    	}
+    	this.boxCategoria.getItems().addAll(this.model.ListAllCategory());
+    	this.boxMese.getItems().addAll(this.model.ListMonths());
     }
 }
